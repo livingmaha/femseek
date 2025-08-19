@@ -1,1 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Femseek - Real-time Voice Translator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+</head>
+<body>
 
+    <div id="welcome-screen" class="screen active">
+        <div class="container">
+            <h1>Femseek</h1>
+            <p class="slogan">Your Voice, Their Language. Instantly.</p>
+            <button id="get-started-btn" class="btn">Get Started</button>
+        </div>
+    </div>
+
+    <div id="auth-screen" class="screen">
+        <div class="container">
+            <h2>Create Your Account</h2>
+            <form id="signup-form">
+                <input type="text" id="full-name" placeholder="Full Name" required>
+                <input type="email" id="email" placeholder="Email Address" required>
+                <input type="text" id="usage-purpose" placeholder="What are you using this for?" required>
+                <button type="submit" class="btn">Start Translating</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app" class="screen">
+        <div class="container">
+            <header>
+                <h2>Femseek Translator</h2>
+                <div class="language-selector">
+                    <label for="target-language">Translate to:</label>
+                    <select id="target-language">
+                        <option value="en">English</option>
+                        <option value="sw">Swahili</option>
+                        <option value="es">Spanish</option>
+                        <option value="pt">Portuguese</option>
+                        <option value="zh">Chinese (Mandarin)</option>
+                        <option value="fr">French</option>
+                        <option value="hi">Hindi</option>
+                    </select>
+                </div>
+            </header>
+
+            <main>
+                <div id="mic-status">
+                    <div class="mic-icon">🎤</div>
+                    <div class="mic-visualizer">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <p>Microphone is active. Start speaking.</p>
+                </div>
+
+                <div class="translation-boxes">
+                    <div class="box">
+                        <h3>Your Speech (Transcribed)</h3>
+                        <div id="input-area" class="text-display"></div>
+                    </div>
+                    <div class="box">
+                        <h3>Translation</h3>
+                        <div id="output-area" class="text-display"></div>
+                    </div>
+                </div>
+
+                <div class="download-section">
+                    <input type="text" id="audio-filename" placeholder="Name your audio file">
+                    <button id="download-btn" class="btn" disabled>Download Audio</button>
+                </div>
+            </main>
+
+            <div class="faq-section">
+                <details>
+                    <summary>Frequently Asked Questions</summary>
+                    <ul>
+                        <li><strong>How does it work?</strong> Simply speak, and Femseek will translate your voice in real-time after you pause.</li>
+                        <li><strong>Is my data secure?</strong> We prioritize your privacy. Audio is processed securely and is not stored long-term.</li>
+                        <li><strong>What languages are supported?</strong> We currently support English, Swahili, Spanish, Portuguese, Chinese, French, and Hindi.</li>
+                    </ul>
+                </details>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 Femseek | <a href="mailto:contact@femseek.com">Contact</a></p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
