@@ -12,3 +12,4 @@ djangorestframework
 django-cors-headers
 requests # For Paystack verification
 whitenoise # For serving static files in production
+python-dotenv
