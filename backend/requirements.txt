@@ -1,1 +1,12 @@
-
+django
+channels
+channels-redis
+daphne
+google-cloud-speech
+google-cloud-translate
+google-cloud-texttospeech
+google-api-python-client
+mysqlclient
+djangorestframework
+django-cors-headers
+requests # For Paystack verification
