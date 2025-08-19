@@ -1,26 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Configuration ---
+    // ❗ IMPORTANT: Replace these with your actual deployed URLs before launching!
+    const API_BASE_URL = 'https://your-backend-app-engine-url.a.run.app';
+    const WEBSOCKET_URL = 'wss://your-backend-app-engine-url.a.run.app/ws/translate/';
+    const PAYSTACK_PUBLIC_KEY = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxx'; // Load from your .env and replace
+
     // --- Global State & DOM Elements ---
-    const API_BASE_URL = 'https://your-backend-url.com'; // Replace with your deployed Django URL
-    const WEBSOCKET_URL = 'wss://your-backend-url.com/ws/translate/'; // Replace with your deployed WebSocket URL
-    const PAYSTACK_PUBLIC_KEY = 'YOUR_PAYSTACK_PUBLIC_KEY'; // Replace with your Paystack Public Key
-
     let mediaRecorder;
-    let audioChunks = [];
     let websocket;
-    let userEmail; // To be set after signup
-    let translatedAudioBlob; // To store received audio data
+    let userEmail;
+    let translatedAudioBlob;
 
-    // Screens
     const welcomeScreen = document.getElementById('welcome-screen');
     const authScreen = document.getElementById('auth-screen');
     const mainApp = document.getElementById('main-app');
-
-    // Buttons & Forms
     const getStartedBtn = document.getElementById('get-started-btn');
     const signupForm = document.getElementById('signup-form');
     const downloadBtn = document.getElementById('download-btn');
-
-    // UI Elements
     const micVisualizer = document.querySelector('.mic-visualizer');
     const inputArea = document.getElementById('input-area');
     const outputArea = document.getElementById('output-area');
@@ -49,8 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) throw new Error('Signup failed.');
-
-            userEmail = email;
+            const userData = await response.json();
+            userEmail = userData.email;
             showScreen(mainApp);
             initializeTranslator();
         } catch (error) {
@@ -74,32 +70,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const setupWebSocket = () => {
         websocket = new WebSocket(WEBSOCKET_URL);
 
+        // 1. Connection Opened: Authenticate the user and set the target language.
         websocket.onopen = () => {
             console.log('WebSocket connection established.');
-            // Send initial auth info
             websocket.send(JSON.stringify({
                 type: 'auth',
                 email: userEmail,
                 target_lang: targetLanguageSelect.value
             }));
-            mediaRecorder.start(500); // Start recording and send data every 500ms
+            mediaRecorder.start(1000); // Start recording, sending data every second.
         };
 
+        // 4. Message Received: Handle incoming data from the backend.
         websocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             handleWebSocketMessage(data);
         };
         
-        websocket.onclose = () => {
-            console.log('WebSocket connection closed.');
-            // Optional: Implement reconnection logic here
-        };
+        websocket.onclose = () => console.log('WebSocket connection closed.');
+        websocket.onerror = (error) => console.error('WebSocket error:', error);
 
-        websocket.onerror = (error) => {
-            console.error('WebSocket error:', error);
-        };
-
-        // Update target language on change
+        // 2b. Language Change: Send updated configuration to the backend.
         targetLanguageSelect.addEventListener('change', () => {
             if (websocket.readyState === WebSocket.OPEN) {
                 websocket.send(JSON.stringify({
@@ -113,32 +104,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const setupMediaRecorder = (stream) => {
         mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
         
+        // 2a. Audio Data: Send raw audio chunks to the backend as they become available.
         mediaRecorder.ondataavailable = (event) => {
             if (event.data.size > 0 && websocket.readyState === WebSocket.OPEN) {
                 websocket.send(event.data);
             }
         };
 
-        mediaRecorder.onstart = () => {
-            micVisualizer.style.display = 'flex';
-        };
-
-        mediaRecorder.onstop = () => {
-            micVisualizer.style.display = 'none';
-        };
+        mediaRecorder.onstart = () => micVisualizer.style.animationPlayState = 'running';
+        mediaRecorder.onstop = () => micVisualizer.style.animationPlayState = 'paused';
     };
 
     const handleWebSocketMessage = (data) => {
+        // This function acts as a router for messages from the backend
         switch (data.type) {
-            case 'transcription':
+            case 'transcription_update': // Real-time transcription
                 inputArea.textContent = data.text;
                 break;
-            case 'translation':
+            case 'translation_result': // Final translated text and audio
                 outputArea.textContent = data.text;
-                break;
-            case 'audio_chunk':
-                // The backend now sends the full audio file at once
-                const audioData = atob(data.audio); // Decode base64
+                const audioData = atob(data.audio); // Decode base64 audio
                 const audioBytes = new Uint8Array(audioData.length);
                 for (let i = 0; i < audioData.length; i++) {
                     audioBytes[i] = audioData.charCodeAt(i);
@@ -148,17 +133,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 audio.play();
                 downloadBtn.disabled = false;
                 break;
-            case 'payment_required':
+            case 'payment_required': // Trial has expired
+                mediaRecorder.stop();
                 triggerPaystackPopup();
                 break;
-            case 'error':
+            case 'error': // An error occurred on the backend
                 console.error('Backend Error:', data.message);
                 alert(`An error occurred: ${data.message}`);
                 break;
         }
     };
 
-    // --- Download Logic ---
+    // --- Download & Payment ---
     downloadBtn.addEventListener('click', () => {
         if (!translatedAudioBlob) return;
         const filenameInput = document.getElementById('audio-filename');
@@ -166,41 +152,33 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const url = URL.createObjectURL(translatedAudioBlob);
         const a = document.createElement('a');
-        a.style.display = 'none';
         a.href = url;
         a.download = `${filename}.mp3`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
     });
 
-    // --- Payment Integration ---
     const triggerPaystackPopup = () => {
         const handler = PaystackPop.setup({
             key: PAYSTACK_PUBLIC_KEY,
             email: userEmail,
-            amount: 500000, // Amount in kobo (e.g., 5000 NGN)
-            currency: 'NGN', // Or your preferred currency
-            ref: '' + Math.floor((Math.random() * 1000000000) + 1), // generates a pseudo-unique reference
+            amount: 500000, // 5000 NGN in kobo
+            currency: 'NGN',
+            ref: 'femseek-' + Math.floor((Math.random() * 1000000000) + 1),
             callback: function(response) {
-                // Send transaction reference to backend for verification
                 if (websocket.readyState === WebSocket.OPEN) {
-                    websocket.send(JSON.stringify({
-                        type: 'payment_verification',
-                        reference: response.reference
-                    }));
+                    websocket.send(JSON.stringify({ type: 'payment_verification', reference: response.reference }));
                 }
-                alert('Payment successful! Your access has been restored.');
+                alert('Payment successful! Your access has been restored. Please refresh the page.');
+                mediaRecorder.start(1000);
             },
             onClose: function() {
-                alert('Transaction was not completed. Please subscribe to continue using the service.');
+                alert('Subscription is required to continue using Femseek.');
             },
         });
         handler.openIframe();
     };
 
-    // Initial check to see if we should start on the welcome screen or main app
-    // In a real app, you'd check for a session token here.
     showScreen(welcomeScreen);
 });
