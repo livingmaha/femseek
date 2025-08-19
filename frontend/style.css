@@ -1,13 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
 :root {
-    --color-primary: #007bff;
-    --color-primary-dark: #0056b3;
-    --color-background: #f4f7f6;
+    --color-primary: #3b82f6; /* A nice blue */
+    --color-accent: #f97316;  /* A vibrant orange */
+    --color-background: #f8fafc; /* A very light grey */
     --color-surface: #ffffff;
-    --color-text: #333;
-    --color-text-light: #666;
-    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    --border-radius: 8px;
-    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --color-text: #0f172a;
+    --color-text-light: #64748b;
+    --font-family: 'Inter', sans-serif;
+    --border-radius: 12px;
+    --box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
 }
 
 body {
@@ -19,6 +21,9 @@ body {
     flex-direction: column;
     min-height: 100vh;
     text-align: center;
+    /* Inspired by your uploaded image */
+    background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1), transparent 50%),
+                      radial-gradient(circle at 80% 90%, rgba(249, 115, 22, 0.1), transparent 50%);
 }
 
 .container {
@@ -42,32 +47,38 @@ body {
 
 /* Welcome & Auth Screens */
 #welcome-screen h1, #auth-screen h2 {
-    font-size: 2.5rem;
+    font-size: 3rem;
+    font-weight: 700;
     margin-bottom: 0.5rem;
+    color: var(--color-text);
 }
 .slogan {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     color: var(--color-text-light);
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 }
 
 .btn {
     background-color: var(--color-primary);
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 14px 28px;
     font-size: 1rem;
+    font-weight: 500;
     border-radius: var(--border-radius);
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
 }
 
 .btn:hover {
-    background-color: var(--color-primary-dark);
+    background-color: #2563eb;
+    transform: translateY(-2px);
 }
 .btn:disabled {
-    background-color: #ccc;
+    background-color: #9ca3af;
     cursor: not-allowed;
+    transform: none;
 }
 
 #signup-form {
@@ -79,17 +90,24 @@ body {
 }
 
 #signup-form input {
-    padding: 12px;
+    padding: 14px;
     border-radius: var(--border-radius);
-    border: 1px solid #ccc;
+    border: 1px solid #e2e8f0;
     font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#signup-form input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
 /* Main App UI */
 #main-app .container {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 2.5rem;
 }
 
 header {
@@ -98,43 +116,50 @@ header {
     align-items: center;
     width: 100%;
 }
+header h2 {
+    font-size: 1.8rem;
+}
 
 .language-selector select {
-    padding: 8px;
+    padding: 10px;
     border-radius: var(--border-radius);
-    border: 1px solid #ccc;
+    border: 1px solid #e2e8f0;
+    background-color: white;
+    font-size: 1rem;
 }
 
 #mic-status {
     background: var(--color-surface);
-    padding: 1.5rem;
+    padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+    border: 1px solid #f1f5f9;
 }
-.mic-icon { font-size: 2rem; }
-.mic-visualizer { display: flex; gap: 4px; height: 30px; align-items: flex-end; }
+.mic-icon { font-size: 2.5rem; color: var(--color-primary); }
+.mic-visualizer { display: flex; gap: 5px; height: 35px; align-items: flex-end; }
 .mic-visualizer span {
-    width: 5px;
+    width: 6px;
     background-color: var(--color-primary);
     display: block;
-    animation: pulse 1s infinite ease-in-out;
+    border-radius: 3px;
+    animation: pulse 1.2s infinite ease-in-out;
 }
 .mic-visualizer span:nth-child(2) { animation-delay: 0.2s; }
 .mic-visualizer span:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes pulse {
-    0%, 100% { height: 5px; }
-    50% { height: 30px; }
+    0%, 100% { height: 6px; opacity: 0.5; }
+    50% { height: 35px; opacity: 1; }
 }
 
 .translation-boxes {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: 2rem;
     width: 100%;
 }
 
@@ -144,15 +169,23 @@ header {
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+.box h3 {
+    margin-top: 0;
+    color: var(--color-text);
 }
 
 .text-display {
     min-height: 150px;
-    border: 1px solid #eee;
+    border: 1px solid #f1f5f9;
     padding: 1rem;
     border-radius: var(--border-radius);
     background: var(--color-background);
+    flex-grow: 1;
     overflow-y: auto;
+    color: var(--color-text-light);
 }
 
 .download-section {
@@ -163,29 +196,29 @@ header {
 }
 
 .download-section input {
-    padding: 12px;
+    padding: 14px;
     border-radius: var(--border-radius);
-    border: 1px solid #ccc;
+    border: 1px solid #e2e8f0;
     flex-grow: 1;
     max-width: 300px;
-}
-
-.faq-section {
-    text-align: left;
-    color: var(--color-text-light);
-}
-.faq-section details {
-    background: var(--color-surface);
-    padding: 1rem;
-    border-radius: var(--border-radius);
-}
-.faq-section ul {
-    margin-top: 1rem;
+    font-size: 1rem;
 }
 
 footer {
-    padding: 1rem;
+    padding: 2rem;
     color: var(--color-text-light);
     font-size: 0.9rem;
     margin-top: auto;
+}
+footer a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Remove FAQ for a cleaner initial MVP */
+.faq-section {
+    display: none;
 }
