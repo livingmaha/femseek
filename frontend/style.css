@@ -1,1 +1,191 @@
+:root {
+    --color-primary: #007bff;
+    --color-primary-dark: #0056b3;
+    --color-background: #f4f7f6;
+    --color-surface: #ffffff;
+    --color-text: #333;
+    --color-text-light: #666;
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
 
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-background);
+    color: var(--color-text);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.screen {
+    display: none;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.screen.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Welcome & Auth Screens */
+#welcome-screen h1, #auth-screen h2 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+.slogan {
+    font-size: 1.2rem;
+    color: var(--color-text-light);
+    margin-bottom: 2rem;
+}
+
+.btn {
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: var(--color-primary-dark);
+}
+.btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+#signup-form input {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+/* Main App UI */
+#main-app .container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.language-selector select {
+    padding: 8px;
+    border-radius: var(--border-radius);
+    border: 1px solid #ccc;
+}
+
+#mic-status {
+    background: var(--color-surface);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+.mic-icon { font-size: 2rem; }
+.mic-visualizer { display: flex; gap: 4px; height: 30px; align-items: flex-end; }
+.mic-visualizer span {
+    width: 5px;
+    background-color: var(--color-primary);
+    display: block;
+    animation: pulse 1s infinite ease-in-out;
+}
+.mic-visualizer span:nth-child(2) { animation-delay: 0.2s; }
+.mic-visualizer span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse {
+    0%, 100% { height: 5px; }
+    50% { height: 30px; }
+}
+
+.translation-boxes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.box {
+    background: var(--color-surface);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    text-align: left;
+}
+
+.text-display {
+    min-height: 150px;
+    border: 1px solid #eee;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    background: var(--color-background);
+    overflow-y: auto;
+}
+
+.download-section {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.download-section input {
+    padding: 12px;
+    border-radius: var(--border-radius);
+    border: 1px solid #ccc;
+    flex-grow: 1;
+    max-width: 300px;
+}
+
+.faq-section {
+    text-align: left;
+    color: var(--color-text-light);
+}
+.faq-section details {
+    background: var(--color-surface);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+}
+.faq-section ul {
+    margin-top: 1rem;
+}
+
+footer {
+    padding: 1rem;
+    color: var(--color-text-light);
+    font-size: 0.9rem;
+    margin-top: auto;
+}
