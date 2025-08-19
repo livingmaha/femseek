@@ -1,0 +1,13 @@
+runtime: python311 # or your python version
+entrypoint: daphne -b 0.0.0.0 -p $PORT femseek_api.asgi:application
+
+instance_class: F2
+
+handlers:
+- url: /.*
+  script: auto
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 10 # Adjust based on expected load
+  target_cpu_utilization: 0.65
