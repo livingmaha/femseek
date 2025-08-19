@@ -1,31 +1,10 @@
+# backend/femseek_api/settings.py
 import os
-import base64
-import json
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url
-
-# Handle Google Cloud Credentials
-# For Render deployment, decode the base64-encoded JSON key
-google_credentials_base64 = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64')
-if google_credentials_base64:
-    try:
-        decoded_credentials = base64.b64decode(google_credentials_base64).decode('utf-8')
-        credentials_path = BASE_DIR / 'google-credentials.json'
-        with open(credentials_path, 'w') as f:
-            f.write(decoded_credentials)
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(credentials_path)
-        print("Google Cloud credentials loaded from environment variable.")
-    except Exception as e:
-        print(f"Error decoding Google Cloud credentials: {e}")
-        # Fallback or raise error if critical
-else:
-    # For local development or if using a direct file path
-    # Ensure GOOGLE_APPLICATION_CREDENTIALS is set in your local .env or system
-    if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
-        print("Google Cloud credentials path found in environment variable.")
-    else:
-        print("Warning: GOOGLE_APPLICATION_CREDENTIALS not found. Google Cloud APIs might fail.")
+import dj_database_url # Add this import
+import base64 # Added for Google Cloud credentials
+import json # Added for Google Cloud credentials
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -69,7 +48,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware', # Ensure this is placed high
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsfRMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -138,13 +117,13 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Channels settings for Redis Layer (Render support)
+# Channels settings for In-Memory Layer (No Redis)
+# !!! WARNING: This is NOT suitable for multi-process/multi-server deployments
+# !!! Render often scales to multiple instances, which will break WebSocket communication
+# !!! unless you manually ensure only one instance is running for WebSockets.
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.pubsub.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [os.getenv('REDIS_URL', "redis://localhost:6379")], # Render Redis URL
-        },
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
     },
 }
 
@@ -157,7 +136,27 @@ CORS_ALLOW_ALL_ORIGINS = True # Be more restrictive in production by specifying 
 
 # Make sure your Google Cloud credentials environment variable is set
 # This is read automatically by the Google Cloud libraries
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+# Handle Google Cloud Credentials
+# For Render deployment, decode the base64-encoded JSON key
+google_credentials_base64 = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64')
+if google_credentials_base64:
+    try:
+        decoded_credentials = base64.b64decode(google_credentials_base64).decode('utf-8')
+        credentials_path = BASE_DIR / 'google-credentials.json'
+        with open(credentials_path, 'w') as f:
+            f.write(decoded_credentials)
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(credentials_path)
+        print("Google Cloud credentials loaded from environment variable.")
+    except Exception as e:
+        print(f"Error decoding Google Cloud credentials: {e}")
+        # Fallback or raise error if critical
+else:
+    # For local development or if using a direct file path
+    # Ensure GOOGLE_APPLICATION_CREDENTIALS is set in your local .env or system
+    if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
+        print("Google Cloud credentials path found in environment variable.")
+    else:
+        print("Warning: GOOGLE_APPLICATION_CREDENTIALS not found. Google Cloud APIs might fail.")
 
 # Make Paystack secret key available
 PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
