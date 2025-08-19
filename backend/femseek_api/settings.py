@@ -1,8 +1,31 @@
-# backend/femseek_api/settings.py
 import os
+import base64
+import json
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url # Add this import
+import dj_database_url
+
+# Handle Google Cloud Credentials
+# For Render deployment, decode the base64-encoded JSON key
+google_credentials_base64 = os.getenv('GOOGLE_APPLICATION_CREDENTIALS_JSON_BASE64')
+if google_credentials_base64:
+    try:
+        decoded_credentials = base64.b64decode(google_credentials_base64).decode('utf-8')
+        credentials_path = BASE_DIR / 'google-credentials.json'
+        with open(credentials_path, 'w') as f:
+            f.write(decoded_credentials)
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(credentials_path)
+        print("Google Cloud credentials loaded from environment variable.")
+    except Exception as e:
+        print(f"Error decoding Google Cloud credentials: {e}")
+        # Fallback or raise error if critical
+else:
+    # For local development or if using a direct file path
+    # Ensure GOOGLE_APPLICATION_CREDENTIALS is set in your local .env or system
+    if os.getenv('GOOGLE_APPLICATION_CREDENTIALS'):
+        print("Google Cloud credentials path found in environment variable.")
+    else:
+        print("Warning: GOOGLE_APPLICATION_CREDENTIALS not found. Google Cloud APIs might fail.")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
