@@ -1,12 +1,14 @@
+# backend/requirements.txt
 django
 channels
-channels-redis
 daphne
 google-cloud-speech
 google-cloud-translate
 google-cloud-texttospeech
 google-api-python-client
-mysqlclient
+psycopg2-binary # Added for PostgreSQL
+dj-database-url # Added for database configuration on Render
 djangorestframework
 django-cors-headers
 requests # For Paystack verification
+whitenoise # For serving static files in production
