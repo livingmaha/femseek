@@ -1,7 +1,32 @@
-# settings.py (additions)
+# backend/femseek_api/settings.py
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(BASE_DIR, '.env'))
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('SECRET_KEY')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+
+ALLOWED_HOSTS = [] # Add your deployed domain here for production
+
+# --- Application definition (no changes here) ---
 INSTALLED_APPS = [
-    # ... existing apps
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
     'rest_framework',
@@ -10,34 +35,27 @@ INSTALLED_APPS = [
     'translator',
 ]
 
-MIDDLEWARE = [
-    # ...
-    'corsheaders.middleware.CorsMiddleware', # Should be placed high up
-    'django.middleware.common.CommonMiddleware',
-    # ...
-]
+# --- Middleware (no changes here) ---
 
-# Allow requests from your Vercel frontend
-CORS_ALLOWED_ORIGINS = [
-    "https://your-vercel-frontend-url.com",
-    "http://localhost:8080", # For local development
-]
-
-# Set Channels as the ASGI application
-ASGI_APPLICATION = 'femseek_api.asgi.application'
-
-# Configure the channel layer (using Redis for production is recommended)
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer" # For development
-        # For production, use Redis:
-        # "BACKEND": "channels_redis.core.RedisChannelLayer",
-        # "CONFIG": {
-        #     "hosts": [("your-redis-host", 6379)],
-        # },
-    },
+# --- Database ---
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+    }
 }
 
-# --- Store these in environment variables ---
-GOOGLE_APPLICATION_CREDENTIALS = "path/to/your/gcp-service-account.json"
-PAYSTACK_SECRET_KEY = "YOUR_PAYSTACK_SECRET_KEY"
+
+# --- Other settings ---
+# Make sure your Google Cloud credentials environment variable is set
+# This is read automatically by the Google Cloud libraries
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+
+# Make Paystack secret key available
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+
+# ... rest of the settings file (ASGI_APPLICATION, CHANNEL_LAYERS, etc.)
