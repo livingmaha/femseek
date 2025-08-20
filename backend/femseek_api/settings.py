@@ -21,10 +21,10 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# ALLOWED_HOSTS for Render
-# Render automatically sets the EXTERNAL_HOSTNAME.
-# If you have a custom domain, add it here.
-ALLOWED_HOSTS = [os.getenv('EXTERNAL_HOSTNAME'), 'localhost', '127.0.0.1'] # Add your deployed domain here for production
+ALLOWED_HOSTS = []
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # --- Application definition (no changes here) ---
 INSTALLED_APPS = [
